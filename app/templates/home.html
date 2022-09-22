@@ -1,0 +1,39 @@
+<!doctype html>
+<html class="bg-slate-400 dark:bg-slate-800">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/static/css/nutui.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="dark:bg-slate-800">
+        <nav class="flex items-center justify-between flex-wrap bg-blue-800 p-4">
+            <div class="flex items-center flex-shrink-0 text-white mr-6">
+                <span class="font-semibold text-4xl tracking-tight">nutUI</span>
+              </div>
+              <div class="block lg:hidden">
+                <button class="flex items-center px-3 py-2 border rounded text-blue-200 hover:text-white hover:border-white mobile-menu">
+                  <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+                </button>
+              </div>
+              <div class="w-full block flex-grow hidden lg:flex lg:items-center lg:w-auto navmenu">
+                <div class="text-xl lg:flex-grow">
+                  <a href="/api" class="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">
+                    docs
+                  </a>
+                  <a href="/ui" class="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">
+                    ui
+                  </a>
+                  <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-blue-200 hover:text-white">
+                    config
+                  </a>
+                </div>
+              </div>
+            <script src="/static/js/nav.js"></script>
+        </nav>
+        <main>
+        {% block circlecharts %}
+        {% endblock %}
+        </main>
+    </body>
+</html>

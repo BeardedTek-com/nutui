@@ -1,0 +1,10 @@
+{
+    "SECRET_KEY"                        : "SECRET_KEY",
+    "SESSION_COOKIE_NAME"               : "nutui_session",
+    "STATIC_FOLDER"                     : "static",
+    "TEMPLATES_FOLDER"                  : "templates",
+    "DEBUG"                             : false,
+    "TESTING"                           : false,
+    "SQLALCHEMY_DATABASE_URI"           : "sqlite:///data/db.sqlite",
+    "SQLALCHEMY_TRACK_MODIFICATIONS"    : false
+}
