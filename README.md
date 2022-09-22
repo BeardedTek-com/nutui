@@ -2,17 +2,17 @@
 
 ## Testing Build - Not considered production ready
 <p align="center">
-<img alt="Light Mode Main Page" src="docs/light.webp">
-</p>
-<p align="center">
-nutUI Main Page with Light Theme
-</p>
-
-<p align="center">
 <img alt="Dark Mode Main Page" src="docs/dark.webp">
 </p>
 <p align="center">
 nutUI Main Page with Dark Theme
+</p>
+
+<p align="center">
+<img alt="Dark Mode Main Page (mobile)" src="docs/mobile-dark.png">
+</p>
+<p align="center">
+nutUI mobile Main Page with Dark Theme
 </p>
 
 
