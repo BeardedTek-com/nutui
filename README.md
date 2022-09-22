@@ -2,10 +2,12 @@
 
 ## Testing Build - Not considered production ready
 
-### python3 -m pip install nutui
+```
+git clone https://github.com/beardedtek-com/nutui.git
+```
 
 ```
-$> nutui -h
+nutui.py -h
 usage: nutui.py [-h] [-c] [-f] [-v] [-u] [-a] [-n NUTHOST] [-ah APIHOST] [-ap APIPORT] [-i INTERVAL] [-l NUTLOGIN] [-p NUTPASSWORD]
 
 Starts nutclient and nutui flask server
