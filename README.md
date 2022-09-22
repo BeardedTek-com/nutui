@@ -1,6 +1,20 @@
 # nutUI - Flask WebUI for nut-server
 
 ## Testing Build - Not considered production ready
+<p align="center">
+<img alt="Light Mode Main Page" src="docs/light.webp">
+</p>
+<p align="center">
+nutUI Main Page with Light Theme
+</p>
+
+<p align="center">
+<img alt="Dark Mode Main Page" src="docs/dark.webp">
+</p>
+<p align="center">
+nutUI Main Page with Dark Theme
+</p>
+
 
 ```
 git clone https://github.com/beardedtek-com/nutui.git
