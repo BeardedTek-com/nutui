@@ -1,0 +1,5 @@
+recursive-include app/templates *
+recursive-include app/static *
+recursive-include app/data *
+global-exclude *.pyc
+global-exclude *.sqlite

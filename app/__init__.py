@@ -9,7 +9,10 @@ from app.helpers.convert import convert
 
 # Flask Setup
 app = Flask(__name__)
-app.config.from_file('config.json',load=yaml.safe_load)
+try:
+    app.config.from_file('data/config.json',load=yaml.safe_load)
+except:
+    pass
 
 # Session Setup
 @app.before_request

@@ -5,12 +5,12 @@
     <div class="flex self-center items-center justify-between flex-wrap text-slate-800 dark:text-slate-200 text-3xl p-4 {{ups}} cursor-pointer">
     <div>
         <div class="flex gap-4">
-            <button class="{{ups}}plus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-blue-800 hidden">
+            <button class="{{ups}}plus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-sky-700 hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
                     <path class="fill-white" d="M19 6.25l-1.5-1.5-7.5 7.5-7.5-7.5L1 6.25l9 9 9-9z"/>
                 </svg>
             </button>
-            <button class="{{ups}}minus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-blue-800">
+            <button class="{{ups}}minus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-sky-700">
                 <svg width="20" height="20" viewBox="0 0 20 20">
                     <path class="fill-white" d="M1 13.75l1.5 1.5 7.5-7.5 7.5 7.5 1.5-1.5-9-9-9 9z"/>
                 </svg>
@@ -32,16 +32,16 @@
     
    
     </div>
-    <div class="flex w-auto self-center items-center justify-center align-center {{ups}}-data gap-2 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div class="place-items-center flex w-auto self-center {{ups}}-data gap-y-4 md:gap-2 grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
     {% for chart in data[ups] %}
         {% set label = data[ups][chart]['label']%}
         {% set value = data[ups][chart]['value']%}
         {% set valueLabel = data[ups][chart]['valueLabel'] %}
         {% if "Load" in label or "Runtime" in label %}
-        {% set classes = "flex lg:hidden single-chart justify-items-stretch w-90 mx-4 py-3 rounded overflow-hidden shadow-lg bg-slate-200 dark:bg-slate-700 w-72 h-72"%}
+        {% set classes = "flex w-48 h-48 lg:hidden md:w-72 md:h-72 single-chart jusify-center mx-2 py-3 rounded overflow-hidden shadow-lg bg-slate-200 dark:bg-zinc-800"%}
         {% else %}
-        {% set classes = "single-chart justify-items-stretch w-90 mx-4 py-3 rounded overflow-hidden shadow-lg bg-slate-200 dark:bg-slate-700 w-72 h-72"%}
+        {% set classes = "flex w-48 h-48 md:w-72 md:h-72 single-chart mx-2 py-1 rounded overflow-hidden drop-shadow-xl bg-slate-200 dark:bg-zinc-800"%}
         {% endif %}
         <div class="{{classes}}">
             <svg viewBox="0 0 36 36" class="circular-chart">
@@ -73,22 +73,22 @@
         {{ups}}plus.classList.toggle("hidden")
         {{ups}}minus.classList.toggle("hidden")
         })
-</script>
+    </script>
 {% endfor %}
 </div>
 
-<div>
-<table class="p-5 table-auto w-full border-separate border-spacing-1 border border-slate-400">
+<div class="grid place-items-center">
+<table class="hidden md:block md:w-100 p-5 table-auto w-full border-separate border-spacing-1">
     <thead>
         <tr>
-            <th class="px-4 py-2 bg-blue-500">Date</th>
-            <th class="px-4 py-2 bg-blue-500">Charge</th>
-            <th class="px-4 py-2 bg-blue-500">Runtime</th>
-            <th class="px-4 py-2 bg-blue-500">AC Input</th>
-            <th class="px-4 py-2 bg-blue-500">AC Output</th>
-            <th class="px-4 py-2 bg-blue-500">Battery</th>
-            <th class="px-4 py-2 bg-blue-500">Load</th>
-            <th class="px-4 py-2 bg-blue-500">Status</th>
+            <th class="px-4 py-2 bg-sky-500">Date</th>
+            <th class="px-4 py-2 bg-sky-500">Charge</th>
+            <th class="px-4 py-2 bg-sky-500">Runtime</th>
+            <th class="px-4 py-2 bg-sky-500">AC Input</th>
+            <th class="px-4 py-2 bg-sky-500">AC Output</th>
+            <th class="px-4 py-2 bg-sky-500">Battery</th>
+            <th class="px-4 py-2 bg-sky-500">Load</th>
+            <th class="px-4 py-2 bg-sky-500">Status</th>
         </tr>
     </thead>
     <tbody>
@@ -96,7 +96,7 @@
         <tr>
         {% for data in upsData[row] %}
         {% if data != "id" and data != "input_nominal" %}
-            <td class="text-center px-4 py-2 bg-blue-300">{{upsData[row][data]}}</td>
+            <td class="text-center px-4 py-2 bg-sky-300">{{upsData[row][data]}}</td>
         {% endif %}
         {% endfor %}
         </tr>
