@@ -5,12 +5,12 @@
     <div class="flex self-center items-center justify-between flex-wrap text-slate-800 dark:text-slate-200 text-3xl p-4 {{ups}} cursor-pointer">
     <div>
         <div class="flex gap-4">
-            <button class="{{ups}}plus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-sky-700 hidden">
+            <button class="{{ups}}plus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-fuchsia-800 hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
                     <path class="fill-white" d="M19 6.25l-1.5-1.5-7.5 7.5-7.5-7.5L1 6.25l9 9 9-9z"/>
                 </svg>
             </button>
-            <button class="{{ups}}minus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-sky-700">
+            <button class="{{ups}}minus p-2 border-2 rounded border-slate-800 dark:border-slate-200 bg-sky-600">
                 <svg width="20" height="20" viewBox="0 0 20 20">
                     <path class="fill-white" d="M1 13.75l1.5 1.5 7.5-7.5 7.5 7.5 1.5-1.5-9-9-9 9z"/>
                 </svg>
@@ -32,8 +32,11 @@
     
    
     </div>
-    <div class="place-items-center flex w-auto self-center {{ups}}-data gap-y-4 md:gap-2 grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div class="text-slate-800 dark:text-slate-200 px-4 py-1 w-100 text-md md:hidden">
+        Last Update: {{date}}
+    </div>
 
+    <div class="place-items-center flex w-auto self-center {{ups}}-data gap-y-4 md:gap-2 grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {% for chart in data[ups] %}
         {% set label = data[ups][chart]['label']%}
         {% set value = data[ups][chart]['value']%}
