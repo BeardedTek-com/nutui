@@ -12,6 +12,7 @@ steps:
     event:
       - push
   settings:
+    dockerfile: docker/Dockerfile
     username: beardedtek
     password:
       from_secret: dockerhub-token
