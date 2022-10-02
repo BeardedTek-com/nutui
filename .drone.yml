@@ -14,9 +14,8 @@ steps:
   settings:
     username: beardedtek
     password:
-      from_secret: docker_password
-    repo: docker.beardedtek.com/beardedtek/nutui
-    registry: docker.beardedtek.com
+      from_secret: dockerhub-token
+    repo: beardedtek/nutui
     tags: latest
     experimental: true
     compress: true
