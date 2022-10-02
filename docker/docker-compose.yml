@@ -9,7 +9,7 @@ services:
       - ./data:/data
     environment:
       - NUT_HOST=192.168.2.240
-      - NUTCLIENT_VERBOSE=
+      - NUTCLIENT_VERBOSE=true
       - NUTCLIENT_INTERVAL=60
       - NUTCLIENT_LOGIN=
       - NUTCLIENT_PASSWORD=

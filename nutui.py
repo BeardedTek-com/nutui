@@ -58,7 +58,7 @@ class nutui:
                     apiURL = f"http://{self.apiHost}:{self.apiPort}/api/data/add/{ups}"
                     logging.debug(f"API URL: {apiURL}")
                     data = self.nutclient.list_vars(ups)
-                    logging.debug(json.dumps(data,indent=2))
+                    logging.debug(f"UPS Data Returned: {json.dumps(data)}")
                     request = requests.post(apiURL, json=data)
                     logging.debug(f"RESPONSE: {request.text}")
                 except Exception as error:
