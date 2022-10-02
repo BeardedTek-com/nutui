@@ -5,3 +5,4 @@ pytz
 PyYAML
 requests
 uwsgi
+markdown

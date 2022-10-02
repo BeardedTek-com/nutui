@@ -6,7 +6,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./data:/nutui/app/data
+      - ./data:/data
     environment:
       - NUT_HOST=192.168.2.240
       - NUTCLIENT_VERBOSE=

@@ -1,7 +1,9 @@
 # External Imports
-from flask import Flask, session, redirect
+from flask import Flask, session, redirect, send_from_directory, make_response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
+import os
+import markdown
 
 # Internal Imports
 from app.helpers.convert import convert
@@ -48,3 +50,14 @@ def convertTZ(time,clockFmt=12,Timezone="America/Anchorage"):
 @app.route('/')
 def nutuiHome():
     return redirect('/ui/all')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/img'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+@app.route('/license')
+def license():
+    APP_PATH = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(APP_PATH,'static/docs/license.txt')) as license:
+        licensemd = markdown.markdown(license.read(),extensions=["fenced_code"])
+    return make_response(render_template('markdown.html',markdown=str(licensemd)))

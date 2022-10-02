@@ -2,14 +2,13 @@
 from flask import Blueprint, escape, redirect, jsonify, make_response, render_template
 from flask_sqlalchemy import inspect
 from sqlalchemy import desc
-import logging
+import os
 
 # Internal Imports
 from app.helpers.convert import convert
 from app.models.data import data
 from app.blueprints.api import apiGetVar
 from app.helpers.charts import CircleCharts
-
 
 # API Blueprint Setup
 ui = Blueprint('ui',__name__)

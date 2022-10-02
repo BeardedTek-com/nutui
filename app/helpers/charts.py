@@ -1,12 +1,8 @@
 from app.blueprints.api import apiGetVar, apiInitDB
 from flask import render_template
-from sqlalchemy import exc
-import logging
 
 class CircleCharts:
     def __init__(self,UPS,count):
-        # Logging
-        logging.getLogger().setLevel(logging.DEBUG)
         self.UPS = UPS
         self.count = count
         self.chartData = None
@@ -14,20 +10,18 @@ class CircleCharts:
         try:
             # Try to get data from the database
             self.chartData = apiGetVar(self.UPS,"all",1,api=False)[0]
-            logging.debug(self.chartData)
             self.upsData = apiGetVar(self.UPS,"all",self.count,api=False)
         except Exception as e:
-            self.output = render_template('nodata.html',error=str(e))
+            self.output = render_template('textbody.html',textbody=str(e))
 
         if self.chartData:
-            logging.debug(f"chartData:{self.chartData}")
             # Process Chart Data
             self.processChartData()
             # Render the Page
             self.render()
         else:
-            error = f"{self.UPS}: No data"
-            self.output = render_template('nodata.html',error=str(error))
+            textbody = f"{self.UPS}: No data"
+            self.output = render_template('textbody.html',textbody=str(error))
         # Return page outputy
         return self.output
 
