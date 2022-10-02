@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-from distutils.command.config import config
-from app import app
 from nut2 import PyNUTClient, PyNUTError
 from threading import Thread
-from time import sleep
+from time import sleep, time
 import json
-import yaml
 import requests
 import logging
 import argparse
 class nutui:
-    def __init__(self,startup='all',nutHost='localhost',ups="",login=None,password=None,debug=False,timeout=5,interval=30,apiHost="localhost",apiPort=5000):
+    def __init__(self,client=True,nutHost='localhost',ups="",login=None,password=None,debug=False,timeout=5,interval=30,apiHost="localhost",apiPort=5000):
         if debug:
             # Print DEBUG messages to the console.
             logging.getLogger().setLevel(logging.DEBUG)
@@ -38,17 +35,19 @@ class nutui:
         self.ups = ups
         self.apiHost = apiHost
         self.apiPort = apiPort
-        self.startup = startup
+        self.client = client
         logging.info("Initializing nutclient...")
         logging.debug(f"nutUI Host: {apiHost}:{apiPort}")
         self.start()
 
     def start(self):
-        if self.startup == "all" or self.startup == "nutclient":
+        logging.debug("Starting Up Client")
+        if self.client:
+            logging.debug("Client Enabled")
             # Setup nutclient threading
-            nutflaskThread = Thread(target=self.nutClient, args=())
-            nutflaskThread.daemon = True
-            nutflaskThread.start()
+            clientThread = Thread(target=self.nutClient, args=())
+            clientThread.daemon = True
+            clientThread.start()
 
     def nutClient(self):
         sleep(5)
@@ -61,11 +60,12 @@ class nutui:
                     data = self.nutclient.list_vars(ups)
                     logging.debug(json.dumps(data,indent=2))
                     request = requests.post(apiURL, json=data)
-                    sleep(self.interval)
+                    logging.debug(f"RESPONSE: {request.text}")
                 except Exception as error:
                     logging.debug(f"An Error Has Occcured:")
                     logging.info(f"{error}")
-                    sleep(5)
+            logging.debug(self.upslist)
+            sleep(self.interval)
 
     def initialize(self):
         init = requests.get('https://localhost/api/init')
@@ -79,13 +79,8 @@ def commandLineArgs():
         cla = argparse.ArgumentParser(description="Starts nutclient and nutui flask server")
         cla.add_argument('-v','--verbose',required=False,action='store_true',default=False,
                             help="Verbose Output")
-        cla.add_argument('-c','--clientonly',required=False,action='store_true',default=False,
+        cla.add_argument('-c','--client',required=False,action='store_true',default=False,
                             help="Runs nutclient only.  Disables the flask server")
-        cla.add_argument('-f','--flaskonly',required=False,action='store_true',default=False,
-                            help="Runs the flask server only")
-        cla.add_argument('-a','--all',required=False,action='store_true',default=True)
-        cla.add_argument('-u','--uwsgi', required=False,action='store_true',default=False,
-                            help="Launches web app with uwsgi instead of flask development server")
         cla.add_argument('-n','--nuthost',required=False,type=str,default='127.0.0.1',
                             help="ip/hostname of nut server (defaults to 127.0.0.1)")
         cla.add_argument('-ah','--apihost',required=False,type=str,default='localhost',
@@ -98,23 +93,12 @@ def commandLineArgs():
                             help="nut-server login (default: None)")
         cla.add_argument('-p','--nutpassword',required=False,type=str,default=None,
                             help="nut-server login (default: None)")
-        cla.add_argument('-C','--config',required=False,type=str,default=None,
-                            help="Flask config.json file to configure server")
         return vars(cla.parse_args())
 
 if __name__ == "__main__":
     clArgs = commandLineArgs()
-    if clArgs['clientonly']:
-        logging.info("[ nutUI | STARTUP ] Running in CLIENT ONLY mode")
-        startup = "nutclient"
-    elif clArgs['flaskonly']:
-        logging.info("[ nutUI | STARTUP ] Running in FLASK ONLY mode")
-        startup = "nutflask"
-    else:
-        logging.info("[ nutUI | STARTUP ] Running in CLIENT and FLASK")
-        startup = "all"
-        
-    nutui(startup=startup,
+
+    nutui(client=clArgs['client'],
         nutHost=clArgs['nuthost'],
         login=clArgs['nutlogin'],
         password=clArgs['nutpassword'],
@@ -123,7 +107,6 @@ if __name__ == "__main__":
         apiHost=clArgs['apihost'],
         apiPort=clArgs['apiport']
         )
-    configFile = clArgs['config']
-    if configFile and isinstance(configFile,str):
-        app.config.from_file(clArgs['config'],load=yaml.safe_load)
-    app.run(host='0.0.0.0',debug=True,port=5000)
+    while True:
+        sleep(5)
+        logging.debug(f"Heartbeat: {time()}")

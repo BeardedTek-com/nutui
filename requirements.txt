@@ -4,3 +4,4 @@ flask_sqlalchemy
 pytz
 PyYAML
 requests
+uwsgi

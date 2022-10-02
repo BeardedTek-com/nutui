@@ -1,7 +1,6 @@
 # External Imports
 from flask import Flask, session, redirect
 from flask_sqlalchemy import SQLAlchemy
-import yaml
 from datetime import timedelta
 
 # Internal Imports
@@ -10,7 +9,16 @@ from app.helpers.convert import convert
 # Flask Setup
 app = Flask(__name__)
 try:
-    app.config.from_file('data/config.json',load=yaml.safe_load)
+    app.config.update(
+    SECRET_KEY                        = "SECRET_KEY",
+    SESSION_COOKIE_NAME               = "nutui_session",
+    STATIC_FOLDER                     = "static",
+    TEMPLATES_FOLDER                  = "templates",
+    DEBUG                             = False,
+    TESTING                           = False,
+    SQLALCHEMY_DATABASE_URI           = "sqlite:////nutui/db.sqlite",
+    SQLALCHEMY_TRACK_MODIFICATIONS    = False
+    )
 except:
     pass
 
@@ -24,10 +32,13 @@ def before_request():
 db = SQLAlchemy(app)
 
 # Import Blueprints
-from app.blueprints.api import api as apiBlueprint
-from app.blueprints.ui import ui as uiBlueprint
-app.register_blueprint(apiBlueprint)
-app.register_blueprint(uiBlueprint)
+from app.blueprints import api
+from app.blueprints import ui
+app.register_blueprint(api.api)
+app.register_blueprint(ui.ui)
+
+# Initialize the Datbase
+db.create_all()
 
 # Define Templates
 @app.template_filter('timezone')

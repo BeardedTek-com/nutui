@@ -1,0 +1,18 @@
+version: '3'
+services:
+  nutui:
+    image: beardedtek-com/nutui:latest
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    volumes:
+      - ./data:/nutui/app/data
+    environment:
+      - NUT_HOST=192.168.2.240
+      - NUTCLIENT_VERBOSE=
+      - NUTCLIENT_INTERVAL=60
+      - NUTCLIENT_LOGIN=
+      - NUTCLIENT_PASSWORD=
+      - NUTUI_HOST=0.0.0.0
+      - NUTUI_PORT=5000
+      - UWSGI_WORKERS=4
