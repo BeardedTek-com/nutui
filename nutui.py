@@ -2,6 +2,7 @@
 from nut2 import PyNUTClient, PyNUTError
 from threading import Thread
 from time import sleep, time
+from math import floor
 import json
 import requests
 import logging
@@ -28,7 +29,7 @@ class nutui:
             logging.debug(f"interval: {interval}")
             logging.debug(f"apiHost: {apiHost}")
             logging.debug(f"apiPort: {apiPort}")
-            quit()
+            quit()    
         self.upslist = self.nutclient.list_ups()
         logging.info(self.upslist)
         self.interval = interval
@@ -36,6 +37,10 @@ class nutui:
         self.apiHost = apiHost
         self.apiPort = apiPort
         self.client = client
+        self.heartbeat = time()
+        self.lastheartbeat = 0
+        self.timeout = self.interval * 2
+        self.killClient = False
         logging.info("Initializing nutclient...")
         logging.debug(f"nutUI Host: {apiHost}:{apiPort}")
         self.start()
@@ -45,35 +50,34 @@ class nutui:
         if self.client:
             logging.debug("Client Enabled")
             # Setup nutclient threading
-            clientThread = Thread(target=self.nutClient, args=())
-            clientThread.daemon = True
-            clientThread.start()
+            self.clientThread = Thread(target=self.nutClient, args=())
+            self.clientThread.daemon = True
+            self.clientThread.start()
 
     def nutClient(self):
         sleep(5)
+        nextRun = 0
         while True:
-            for ups in self.upslist:
-                logging.info(ups)
-                try:
-                    apiURL = f"http://{self.apiHost}:{self.apiPort}/api/data/add/{ups}"
-                    logging.debug(f"API URL: {apiURL}")
-                    data = self.nutclient.list_vars(ups)
-                    logging.debug(f"UPS Data Returned: {json.dumps(data)}")
-                    request = requests.post(apiURL, json=data)
-                    logging.debug(f"RESPONSE: {request.text}")
-                except Exception as error:
-                    logging.debug(f"An Error Has Occcured:")
-                    logging.info(f"{error}")
-            logging.debug(self.upslist)
-            sleep(self.interval)
+            if self.killClient:
+                break
+            if time() > nextRun:
+                for ups in self.upslist:
+                    logging.info(ups)
+                    try:
+                        apiURL = f"http://{self.apiHost}:{self.apiPort}/api/data/add/{ups}"
+                        logging.debug(f"API URL: {apiURL}")
+                        data = self.nutclient.list_vars(ups)
+                        logging.debug(f"UPS Data Returned: {json.dumps(data)}")
+                        request = requests.post(apiURL, json=data)
+                        logging.debug(f"RESPONSE: {request.text}")
+                        self.heartbeat = time()
+                    except Exception as error:
+                        logging.info(f"         Error  : {error}")
+                nextRun = floor(time() + self.interval)
 
     def initialize(self):
         init = requests.get('https://localhost/api/init')
         return init
-
-class flaskserver:
-    def __init__(self,cla):
-        self.cla = cla
 
 def commandLineArgs():
         cla = argparse.ArgumentParser(description="Starts nutclient and nutui flask server")
@@ -93,12 +97,12 @@ def commandLineArgs():
                             help="nut-server login (default: None)")
         cla.add_argument('-p','--nutpassword',required=False,type=str,default=None,
                             help="nut-server login (default: None)")
+        cla.add_argument('-T','--testRestart',required=False,action='store_true',default=False,
+                            help="Tests Threading restart.  Sets nutui.timeout to 3 seconds which should trigger constant restarts.")
         return vars(cla.parse_args())
 
-if __name__ == "__main__":
-    clArgs = commandLineArgs()
-
-    nutui(client=clArgs['client'],
+def run(clArgs):
+    nutUI = nutui(client=clArgs['client'],
         nutHost=clArgs['nuthost'],
         login=clArgs['nutlogin'],
         password=clArgs['nutpassword'],
@@ -107,6 +111,28 @@ if __name__ == "__main__":
         apiHost=clArgs['apihost'],
         apiPort=clArgs['apiport']
         )
+    return nutUI
+
+if __name__ == "__main__":
+    args = commandLineArgs()
+
+    nutUI = run(args)
+    nutUI.timeout = 3 if args['testRestart'] else nutUI.timeout
     while True:
-        sleep(5)
-        logging.debug(f"Heartbeat: {time()}")
+        lastHeartbeat = floor(time() - nutUI.heartbeat)
+        if lastHeartbeat > 5 and lastHeartbeat%5 == 0:
+            logging.debug(f"Last Heartbeat  : {floor(nutUI.heartbeat)}")
+            logging.debug(f"Since Heartbeat : {floor(lastHeartbeat)}")
+            logging.debug(f"Timeout         : {nutUI.timeout}")
+
+        if nutUI.timeout > lastHeartbeat > nutUI.timeout*0.6 and "TakingTooLong" not in locals():
+            logging.info(f"Taking longer than expected ({floor(nutUI.lastheartbeat)}/{nutUI.timeout} seconds)")
+            TakingTooLong = True
+        if lastHeartbeat > nutUI.timeout:
+            logging.info(f"Timeout Reached.  Restarting Client Thread.")
+            numRestarts =+ 1 if "numRestarts" in locals() else 1
+            nutUI.killClient = True
+            nutUI.clientThread.join()
+            nutUI = None
+            nutUI = run(args)
+            nutUI.timeout = 3 if args['testRestart'] else nutUI.timeout
