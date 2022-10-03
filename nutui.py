@@ -9,29 +9,32 @@ import logging
 import argparse
 class nutui:
     def __init__(self,client=True,nutHost='localhost',ups="",login=None,password=None,debug=False,timeout=5,interval=30,apiHost="localhost",apiPort=5000):
-        if debug:
-            # Print DEBUG messages to the console.
-            logging.getLogger().setLevel(logging.DEBUG)
-        else:
-            logging.getLogger().setLevel(logging.INFO)
+        
 
-        # Initialize PyNUTClient as nutclient
+        # Display Connection Parameters for DEBUG
+        logging.info(f"   {floor(time())}: host: {nutHost}")
+        logindisplay = "**********" if login else "(empty)"
+        logging.info(f"   {floor(time())}: login: {logindisplay}")
+        pwdisplay = "**********" if password else "(empty)"
+        logging.info(f"   {floor(time())}: password: {pwdisplay}")
+        logging.info(f"   {floor(time())}: debug: {debug}")
+        logging.info(f"   {floor(time())}: timeout: {timeout}")
+        logging.info(f"   {floor(time())}: interval: {interval}")
+        logging.info(f"   {floor(time())}: apiHost: {apiHost}")
+        logging.info(f"   {floor(time())}: apiPort: {apiPort}\n")
         try:
             self.nutclient = PyNUTClient(host=nutHost,login=login,password=password,debug=debug,timeout=timeout)
         except PyNUTError as e:
-            logging.info(f"An error has occured: {e}")
-            logging.debug(f"host: {nutHost}")
-            logging.debug(f"ups: {ups}")
-            logging.debug(f"login: {login}")
-            logging.debug(f"password: {password}")
-            logging.debug(f"debug: {debug}")
-            logging.debug(f"timeout: {timeout}")
-            logging.debug(f"interval: {interval}")
-            logging.debug(f"apiHost: {apiHost}")
-            logging.debug(f"apiPort: {apiPort}")
+            logging.info(f"  {floor(time())}: Error Initializing PyNUTClient: {e}")
             quit()    
         self.upslist = self.nutclient.list_ups()
-        logging.info(self.upslist)
+        logging.info(f"   {floor(time())}: Initializing nutclient...")
+        logging.info(f"   {floor(time())}: Monitoring {nutHost}:")
+        for ups in self.upslist:
+            logging.info(f"   {floor(time())}:     {ups} ({self.upslist[ups]})\n")
+        logging.info(f"   {floor(time())}: nutUI Host {apiHost}:{apiPort}")
+
+
         self.interval = interval
         self.ups = ups
         self.apiHost = apiHost
@@ -41,14 +44,12 @@ class nutui:
         self.lastheartbeat = 0
         self.timeout = self.interval * 2
         self.killClient = False
-        logging.info("Initializing nutclient...")
-        logging.debug(f"nutUI Host: {apiHost}:{apiPort}")
         self.start()
 
     def start(self):
-        logging.debug("Starting Up Client")
+        logging.info(f"   {floor(time())}: Starting Up Client")
         if self.client:
-            logging.debug("Client Enabled")
+            logging.info(f"   {floor(time())}: Client Enabled")
             # Setup nutclient threading
             self.clientThread = Thread(target=self.nutClient, args=())
             self.clientThread.daemon = True
@@ -62,17 +63,17 @@ class nutui:
                 break
             if time() > nextRun:
                 for ups in self.upslist:
-                    logging.info(ups)
                     try:
                         apiURL = f"http://{self.apiHost}:{self.apiPort}/api/data/add/{ups}"
-                        logging.debug(f"API URL: {apiURL}")
+                        logging.info(f"   {floor(time())}: API URL: {apiURL}")
                         data = self.nutclient.list_vars(ups)
-                        logging.debug(f"UPS Data Returned: {json.dumps(data)}")
+                        logging.info(f"   {floor(time())}: UPS Data Returned: {json.dumps(data)}")
                         request = requests.post(apiURL, json=data)
-                        logging.debug(f"RESPONSE: {request.text}")
+                        logging.info(f"   {floor(time())}: RESPONSE: {request.text}")
                         self.heartbeat = time()
+                        logging.info(f"   {floor(time())}: {ups} data saved")
                     except Exception as error:
-                        logging.info(f"         Error  : {error}")
+                        logging.info(f"  {floor(time())}:          Error  : {error}")
                 nextRun = floor(time() + self.interval)
 
     def initialize(self):
@@ -101,7 +102,7 @@ def commandLineArgs():
                             help="Tests Threading restart.  Sets nutui.timeout to 3 seconds which should trigger constant restarts.")
         return vars(cla.parse_args())
 
-def run(clArgs):
+def run(clArgs,timeout):
     nutUI = nutui(client=clArgs['client'],
         nutHost=clArgs['nuthost'],
         login=clArgs['nutlogin'],
@@ -109,30 +110,31 @@ def run(clArgs):
         debug=clArgs['verbose'],
         interval=clArgs['interval'],
         apiHost=clArgs['apihost'],
-        apiPort=clArgs['apiport']
+        apiPort=clArgs['apiport'],
+        timeout=timeout
         )
     return nutUI
 
 if __name__ == "__main__":
     args = commandLineArgs()
-
-    nutUI = run(args)
+    if args['verbose']:
+        # Print DEBUG messages to the console.
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+    logging.info(f"   {floor(time())}: nutUI Client by BeardedTek\n")
+    timeout = 3 if args['testRestart'] else args['interval']*2
+    nutUI = run(args,timeout)
     nutUI.timeout = 3 if args['testRestart'] else nutUI.timeout
     while True:
         lastHeartbeat = floor(time() - nutUI.heartbeat)
-        if lastHeartbeat > 5 and lastHeartbeat%5 == 0:
-            logging.debug(f"Last Heartbeat  : {floor(nutUI.heartbeat)}")
-            logging.debug(f"Since Heartbeat : {floor(lastHeartbeat)}")
-            logging.debug(f"Timeout         : {nutUI.timeout}")
-
         if nutUI.timeout > lastHeartbeat > nutUI.timeout*0.6 and "TakingTooLong" not in locals():
-            logging.info(f"Taking longer than expected ({floor(nutUI.lastheartbeat)}/{nutUI.timeout} seconds)")
+            logging.warning(f"{floor(time())}: Taking longer than expected ({floor(lastHeartbeat)}/{nutUI.timeout} seconds)")
             TakingTooLong = True
         if lastHeartbeat > nutUI.timeout:
-            logging.info(f"Timeout Reached.  Restarting Client Thread.")
+            logging.info(f"  {floor(time())}: Timeout Reached.  Restarting Client Thread.\n\n")
             numRestarts =+ 1 if "numRestarts" in locals() else 1
             nutUI.killClient = True
             nutUI.clientThread.join()
             nutUI = None
-            nutUI = run(args)
-            nutUI.timeout = 3 if args['testRestart'] else nutUI.timeout
+            nutUI = run(args,timeout)
