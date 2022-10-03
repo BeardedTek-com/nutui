@@ -15,3 +15,4 @@ COPY uwsgi.ini /nutui
 COPY app /nutui/app
 COPY rootfs /
 RUN chown -R 1000:1000 /nutui
+EXPOSE 5000
