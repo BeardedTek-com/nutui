@@ -54,7 +54,7 @@ class nutui:
             logging.info(f"    {floor(time())}: Client Enabled")
             # Setup nutclient threading
             self.clientThread = Thread(target=self.nutClient, args=())
-            self.clientThread.daemon = True
+            self.clientThread.daemon = False
             self.clientThread.start()
 
     def nutClient(self):
@@ -79,7 +79,7 @@ class nutui:
                         self.restart = True if "telnet connection closed" in error else False
                         logging.error(f"   {floor(time())}:          Error  : {error}")
                 nextRun = floor(time() + self.interval)
-            sleep(5)
+            sleep(0.1)
 
     def initialize(self):
         init = requests.get('https://localhost/api/init')
@@ -143,3 +143,4 @@ if __name__ == "__main__":
             nutUI.clientThread.join()
             nutUI = None
             nutUI = run(args,timeout)
+        sleep(0.1)
