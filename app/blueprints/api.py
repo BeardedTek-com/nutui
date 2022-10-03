@@ -200,7 +200,7 @@ def apiAddData(ups):
         try:
             db.session.add(dataAdd)
             db.session.commit()
-            return jsonify({"Result":"OK","Data":str(dataAdd.__dict__)})
+            return jsonify({"Result":"SUCCESS"})
         except Exception as e:
             return jsonify({"Result": "Error","Data":str(e)})
     else:

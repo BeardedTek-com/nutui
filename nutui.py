@@ -36,6 +36,7 @@ class nutui:
 
 
         self.interval = interval
+        self.nutHost = nutHost
         self.ups = ups
         self.apiHost = apiHost
         self.apiPort = apiPort
@@ -44,6 +45,7 @@ class nutui:
         self.lastheartbeat = 0
         self.timeout = self.interval * 2
         self.killClient = False
+        self.restart = False
         self.start()
 
     def start(self):
@@ -65,16 +67,19 @@ class nutui:
                 for ups in self.upslist:
                     try:
                         apiURL = f"http://{self.apiHost}:{self.apiPort}/api/data/add/{ups}"
-                        logging.info(f"    {floor(time())}: API URL: {apiURL}")
+                        logging.debug(f"    Sending {ups} data to 'http://{self.apiHost}:{self.apiPort}/api/data/add/{ups}'")
                         data = self.nutclient.list_vars(ups)
                         logging.debug(f"   {floor(time())}: UPS Data Returned: {json.dumps(data)}")
                         request = requests.post(apiURL, json=data)
-                        logging.debug(f"   {floor(time())}: RESPONSE: {request.text}")
+                        logging.info(f"   {floor(time())}: {self.nutHost}/{ups} -> {apiURL} | {request.text}")
+
                         self.heartbeat = time()
-                        logging.info(f"    {floor(time())}: {ups} data saved")
                     except Exception as error:
+                        # If nut2 sees the telnet connection close, set restart to True
+                        self.restart = True if "telnet connection closed" in error else False
                         logging.error(f"   {floor(time())}:          Error  : {error}")
                 nextRun = floor(time() + self.interval)
+            sleep(5)
 
     def initialize(self):
         init = requests.get('https://localhost/api/init')
@@ -131,9 +136,9 @@ if __name__ == "__main__":
         if nutUI.timeout > lastHeartbeat > nutUI.timeout*0.6 and "TakingTooLong" not in locals():
             logging.warning(f"{floor(time())}: Taking longer than expected ({floor(lastHeartbeat)}/{nutUI.timeout} seconds)")
             TakingTooLong = True
-        if lastHeartbeat > nutUI.timeout:
-            logging.info(f"    {floor(time())}: Timeout Reached.  Restarting Client Thread.\n\n")
+        if lastHeartbeat > nutUI.timeout or nutUI.restart:
             numRestarts =+ 1 if "numRestarts" in locals() else 1
+            logging.info(f"    {floor(time())}: Restarting Client. ({numRestarts})\n\n")
             nutUI.killClient = True
             nutUI.clientThread.join()
             nutUI = None
